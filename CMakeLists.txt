@@ -1,6 +1,7 @@
 add_library(option)
 target_sources(option
   PRIVATE
+  src/option/Commands.hh
   src/option/Option.hh
   src/option/Program.hh
   src/option/parse_args.hh
@@ -16,6 +17,7 @@ target_include_directories(option PUBLIC "src")
 add_library(_option OBJECT)
 target_sources(_option
   PRIVATE
+  src/option/Commands.cc
   src/option/Option.cc
   src/option/Program.cc
   src/option/parse_args.cc
