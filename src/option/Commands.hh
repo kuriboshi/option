@@ -5,6 +5,7 @@
 #include <map>
 
 #include "parse_args.hh"
+#include "usage.hh"
 
 namespace wani
 {
