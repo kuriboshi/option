@@ -1,3 +1,6 @@
+#
+# Copyright (c) 2021 Krister Joas
+#
 add_library(option)
 target_sources(option
   PRIVATE
