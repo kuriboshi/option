@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
 #include <set>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace wani
 {
