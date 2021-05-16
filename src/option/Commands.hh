@@ -21,6 +21,7 @@ public:
 
   Commands& command(const std::string& name, function_t cmd)
   {
+    _command_list.push_back(name);
     _commands.emplace(name, cmd);
     return *this;
   }

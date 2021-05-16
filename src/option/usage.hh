@@ -44,7 +44,6 @@ inline void usage_prefix(bool prefix, std::ostringstream& os)
 // one line in the usage message.  This vector of strings is built at runtime.
 inline void usage0(bool prefix, std::ostringstream& os, const std::vector<std::string>& list)
 {
-  usage_prefix(prefix, os);
   bool first = true;
   for(auto i: list)
   {
@@ -52,7 +51,9 @@ inline void usage0(bool prefix, std::ostringstream& os, const std::vector<std::s
       first = false;
     else
       os << std::endl;
+    usage_prefix(prefix, os);
     os << i;
+    prefix = false;
   }
   throw usage_error(os.str());
 }
