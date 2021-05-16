@@ -4,34 +4,15 @@
 
 #include "usage.hh"
 
-namespace wani::detail
+namespace wani::option::detail
 {
-void usage_prefix(bool usage, std::ostringstream& os)
+void usage_prefix(bool prefix, const std::string& program_name, std::ostringstream& os)
 {
-  if(usage)
-    os << "usage: wani ";
+  if(prefix)
+    os << "usage: ";
   else
-    os << "       wani ";
+    os << "       ";
+  os << program_name << ' ';
 }
 
-} // namespace wani::detail
-
-namespace wani
-{
-void usage()
-{
-  // clang-format off
-  usage(
-    "<command> [<arguments>]",
-    "assignment",
-    "assignments",
-    "lessons",
-    "levels",
-    "reader",
-    "stages",
-    "subject",
-    "summary");
-  // clang-format on
-}
-
-} // namespace wani
+} // namespace wani::option::detail

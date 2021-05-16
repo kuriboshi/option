@@ -11,13 +11,13 @@
 #include "parse_args.hh"
 #include "usage.hh"
 
-namespace wani
+namespace wani::option
 {
 template<typename T>
 class Commands
 {
 public:
-  using function_t = std::function<void(T&, wani::args_range_t)>;
+  using function_t = std::function<void(T&, args_range_t)>;
 
   Commands& command(const std::string& name, function_t cmd)
   {
@@ -39,4 +39,4 @@ private:
   std::map<std::string, function_t> _commands;
 };
 
-} // namespace wani
+} // namespace wani::option

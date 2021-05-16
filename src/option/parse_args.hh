@@ -9,9 +9,9 @@
 #include <vector>
 #include <map>
 
-namespace wani
+namespace wani::option
 {
 using args_t = std::vector<std::string>;
 using args_range_t = std::pair<args_t::iterator, args_t::iterator>;
 
-} // namespace wani
+} // namespace wani::option

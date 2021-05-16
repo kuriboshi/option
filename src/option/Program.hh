@@ -13,7 +13,7 @@
 #include "parse_args.hh"
 #include "usage.hh"
 
-namespace wani
+namespace wani::option
 {
 template<typename... Ts>
 class Program
@@ -37,7 +37,7 @@ public:
     template<typename... Args>
     void operator()(const Args&... args)
     {
-      wani::usage(args...);
+      wani::option::usage(args...);
     }
   };
 
@@ -129,4 +129,4 @@ private:
   }
 };
 
-} // namespace wani
+} // namespace wani::option

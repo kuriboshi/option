@@ -7,37 +7,39 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace wani
+namespace wani::option
 {
 namespace detail
 {
-void usage_prefix(bool usage, std::ostringstream&);
+void usage_prefix(bool prefix, const std::string& program_name, std::ostringstream&);
 
 template<typename T>
-void usage0(bool usage, std::ostringstream& os, const T& last)
+void usage0(bool prefix, const std::string& program_name, std::ostringstream& os, const T& last)
 {
-  usage_prefix(usage, os);
+  usage_prefix(prefix, program_name, os);
   os << last;
   throw std::runtime_error(os.str());
 }
 
 template<typename T, typename... Args>
-void usage0(bool usage, std::ostringstream& os, const T& first, const Args&... args)
+void usage0(bool prefix, const std::string& program_name, std::ostringstream& os,
+  const T& first, const Args&... args)
 {
-  usage_prefix(usage, os);
+  usage_prefix(prefix, program_name, os);
   os << first << std::endl;
-  usage0(false, os, args...);
+  usage0(false, program_name, os, args...);
 }
 
 } // namespace detail
+
+std::string program_name();
+void usage();
 
 template<typename... Args>
 void usage(const Args&... args)
 {
   std::ostringstream os;
-  wani::detail::usage0(true, os, args...);
+  detail::usage0(true, program_name(), os, args...);
 }
 
-void usage();
-
-} // namespace wani
+} // namespace wani::option

@@ -11,7 +11,7 @@
 
 #include <util/overloaded.hh>
 
-namespace wani
+namespace wani::option
 {
 class argument_error: public std::exception
 {
@@ -57,4 +57,4 @@ private:
   std::variant<std::function<void()>, std::function<void(const Option&)>> _fun;
 };
 
-} // namespace wani
+} // namespace wani::option

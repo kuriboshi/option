@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <set>
-#include <stdexcept>
-#include <string>
 #include <vector>
+#include <string>
+#include <stdexcept>
+#include <set>
 
-namespace wani
+namespace wani::option
 {
 inline std::vector<std::string> split_string(const std::string& s, char delim, bool include_empties = false)
 {
@@ -54,4 +54,4 @@ inline std::set<int> numeric_range(const std::string& s, int min, int max)
   return result;
 }
 
-} // namespace wani
+} // namespace wani::option
