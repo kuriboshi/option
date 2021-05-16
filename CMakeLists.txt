@@ -1,18 +1,17 @@
 #
 # Copyright (c) 2021 Krister Joas
 #
-add_library(option)
+add_library(option INTERFACE)
 target_sources(option
-  PRIVATE
+  INTERFACE
   src/option/Commands.hh
   src/option/Option.hh
   src/option/Program.hh
   src/option/parse_args.hh
   src/option/string_functions.hh
-  src/option/usage.cc
   src/option/usage.hh)
-target_link_libraries(option PUBLIC util)
-target_include_directories(option PUBLIC "src")
+target_link_libraries(option INTERFACE util)
+target_include_directories(option INTERFACE "src")
 
 # This library is here to compile the empty .cc files.  They only
 # exist to test that the .hh files include all needed headers and they
@@ -24,5 +23,6 @@ target_sources(_option
   src/option/Option.cc
   src/option/Program.cc
   src/option/parse_args.cc
-  src/option/string_functions.cc)
+  src/option/string_functions.cc
+  src/option/usage.cc)
 target_link_libraries(_option PRIVATE util)

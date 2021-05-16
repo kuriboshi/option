@@ -107,7 +107,7 @@ private:
       {
         // Previous option taking an argument didn't get the argument
         if(current_option && !current_option->set)
-          throw argument_error();
+          throw argument_error("missing option value: " + current_option->name());
         // If the option takes an argument, set current_option
         if(opt->second.argument())
           current_option = &opt->second;
@@ -117,7 +117,7 @@ private:
       else if(*arg == "--")
         process_options = false;
       else if(!arg->empty() && arg->at(0) == '-')
-        throw argument_error();
+        throw argument_error("unknown option: " + *arg);
       else
       {
         process_options = false;

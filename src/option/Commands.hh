@@ -36,6 +36,12 @@ public:
   }
 
 private:
+  void usage()
+  {
+    option::usage(_command_list);
+  }
+  
+  std::vector<std::string> _command_list;
   std::map<std::string, function_t> _commands;
 };
 
