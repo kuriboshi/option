@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
 #include <exception>
+#include <functional>
+#include <string>
 #include <variant>
 
 #include <util/overloaded.hh>
