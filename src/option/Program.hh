@@ -19,8 +19,9 @@ namespace wani::option
 {
 class Program
 {
-  struct Group
+  class Group
   {
+  public:
     Group() = default;
     ~Group() = default;
     Group(const Group& g) = delete;
@@ -46,13 +47,25 @@ class Program
     int max_args = 0;
     std::map<std::string, Option> valid_options;
   };
+
+  args_range_t _range;
   std::string _name;
   std::vector<Group> _groups;
   Group _group;
 
 public:
-  Program(const args_range_t& range, const std::string& name): _name(name), _range(range) {}
+  //
+  // Create a program with the arguments in 'range'.  The name of the program
+  // is in 'name'.
+  //
+  Program(const args_range_t& range, const std::string& name): _range(range), _name(name) {}
 
+  //
+  // Add a required option to the program.  The function 'f' can either be a
+  // function taking no arguments or a function taking a 'const Option&'.  In
+  // the former case it represents a boolean option and in the latter case it's
+  // an option taking one value.
+  //
   template<typename F>
   Program& required(const std::string& name, F f)
   {
@@ -60,6 +73,9 @@ public:
     return *this;
   }
 
+  //
+  // Add an optional option to the program.  The function 'f' is the same as
+  // 'f' in 'required'.
   template<typename F>
   Program& optional(const std::string& name, F f)
   {
@@ -67,15 +83,81 @@ public:
     return *this;
   }
 
+  //
+  // Start a new group of options.
+  //
   Program& group()
   {
     _groups.push_back(std::move(_group));
     return *this;
   }
 
-  void usage()
+  //
+  // Alternative syntax starting a new group.  It means that the group
+  // preceding the new group takes no more arguments.
+  //
+  Program& args()
+  {
+    return group();
+  }
+
+  //
+  // Starts a new group setting the minimum number of argruments of the
+  // previous group to 'min_args'.
+  //
+  Program& args(int min_args)
+  {
+    _group.min_args = min_args;
+    _group.max_args = std::numeric_limits<int>::max();
+    return group();
+  }
+
+  //
+  // Starts a new group and sets both the min and max number of arguments
+  // accepted.
+  //
+  Program& args(int min_args, int max_args)
+  {
+    _group.min_args = min_args;
+    _group.max_args = max_args;
+    return group();
+  }
+
+  //
+  // Parse the arguments.  It tries each group in sequence and if successul
+  // returns the range of arguments left after processing all options.  Any
+  // group which can't be parsed, because there is an illegal option for
+  // example, is skipped.  At the end, if no group is selected the first error
+  // encountered is reported and an usage exception is thrown.
+  //
+  args_range_t parse()
+  {
+    _groups.push_back(std::move(_group));
+    std::vector<std::string> errors;
+    for(auto& group: _groups)
+    {
+      try
+      {
+        return parse(_range, group);
+      }
+      catch(const argument_error& e)
+      {
+        errors.push_back(e.what());
+      }
+    }
+    usage(*errors.begin());
+    throw;
+  }
+
+  //
+  // Construct the usage string based on what groups and what options there are
+  // in each group.
+  //
+  void usage(const std::optional<std::string> error = {})
   {
     std::vector<std::string> help_strings;
+    if(error)
+      help_strings.push_back(*error);
     for(auto& g: _groups)
     {
       std::string help{_name};
@@ -97,58 +179,12 @@ public:
     option::usage(help_strings);
   }
 
-  Program& args()
-  {
-    return group();
-  }
-
-  Program& args(int min_args)
-  {
-    _group.min_args = min_args;
-    _group.max_args = std::numeric_limits<int>::max();
-    return group();
-  }
-
-  Program& args(int min_args, int max_args)
-  {
-    _group.min_args = min_args;
-    _group.max_args = max_args;
-    return group();
-  }
-
-  args_range_t parse()
-  {
-    _groups.push_back(std::move(_group));
-    std::vector<std::string> errors;
-    for(auto& group: _groups)
-    {
-      try
-      {
-        return parse(_range, group);
-      }
-      catch(const argument_error& e)
-      {
-        errors.push_back(e.what());
-      }
-    }
-    std::cout << *errors.begin() << std::endl;
-    usage();
-    throw;
-  }
-
 private:
-  args_range_t _range;
-
-  args_range_t exec(args_t::iterator args, Group& group, std::vector<Option*>& options)
-  {
-    auto distance = std::distance(args, _range.second);
-    if(distance < group.min_args || distance > group.max_args)
-      usage();
-    for(const auto* o: options)
-      o->exec();
-    return {args, _range.second};
-  }
-
+  //
+  // Parse the range of arguments against the option group.  Throws an
+  // 'argument_error' if there is anything wrong such as illegal option,
+  // missing option parameter.
+  //
   args_range_t parse(const args_range_t& range, Group& group)
   {
     std::vector<Option*> options;
@@ -189,6 +225,22 @@ private:
       if(o.second.required && !o.second.set)
         throw argument_error("missing required argument: " + o.second.name());
     return exec(arg, group, options);
+  }
+
+  //
+  // Verifies that the number of arguments in 'args' satisfies the group
+  // criteria for min and max number of arguements.  If within range each
+  // option is processed.  Finally, the range if remaining arguments is
+  // returned to the called.
+  //
+  args_range_t exec(args_t::iterator args, Group& group, std::vector<Option*>& options)
+  {
+    auto distance = std::distance(args, _range.second);
+    if(distance < group.min_args || distance > group.max_args)
+      usage();
+    for(const auto* o: options)
+      o->exec();
+    return {args, _range.second};
   }
 };
 
