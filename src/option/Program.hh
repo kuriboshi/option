@@ -17,36 +17,35 @@
 
 namespace wani::option
 {
-struct Group
+class Program
 {
-  Group() = default;
-  ~Group() = default;
-  Group(const Group& g) = delete;
-  Group(Group&& g) : min_args(g.min_args), max_args(g.max_args), valid_options(std::move(g.valid_options))
+  struct Group
   {
-    g.min_args = 0;
-    g.max_args = 0;
-  }
-  Group& operator=(Group&& g)
-  {
-    if(this != &g)
+    Group() = default;
+    ~Group() = default;
+    Group(const Group& g) = delete;
+    Group(Group&& g) : min_args(g.min_args), max_args(g.max_args), valid_options(std::move(g.valid_options))
     {
-      min_args = g.min_args;
-      max_args = g.max_args;
-      valid_options = std::move(g.valid_options);
       g.min_args = 0;
       g.max_args = 0;
     }
-    return *this;
-  }
+    Group& operator=(Group&& g)
+    {
+      if(this != &g)
+      {
+        min_args = g.min_args;
+        max_args = g.max_args;
+        valid_options = std::move(g.valid_options);
+        g.min_args = 0;
+        g.max_args = 0;
+      }
+      return *this;
+    }
 
-  int min_args = 0;
-  int max_args = 0;
-  std::map<std::string, Option> valid_options;
-};
-
-class Program
-{
+    int min_args = 0;
+    int max_args = 0;
+    std::map<std::string, Option> valid_options;
+  };
   std::string _name;
   std::vector<Group> _groups;
   Group _group;
