@@ -173,9 +173,10 @@ private:
   std::optional<std::pair<Group::valid_options_t::iterator, std::optional<std::string>>> find_option(
     const std::string& arg, Group& group)
   {
+    auto o = [](std::optional<std::string> s = {}) { return s; };
     auto opt = group.valid_options.find(arg);
     if(opt != group.valid_options.end())
-      return std::make_pair(opt, std::optional<std::string>{});
+      return std::make_pair(opt, o());
     auto pos = arg.find_first_of('=');
     if(pos == std::string::npos)
       return {};
@@ -183,7 +184,7 @@ private:
     auto right = arg.substr(pos + 1);
     opt = group.valid_options.find(left);
     if(opt != group.valid_options.end())
-      return std::make_pair(opt, std::optional<std::string>{right});
+      return std::make_pair(opt, o(right));
     return {};
   }
 
