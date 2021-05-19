@@ -161,13 +161,31 @@ private:
 
     int min_args = 0;
     int max_args = 0;
-    std::map<std::string, Option> valid_options;
+    using valid_options_t = std::map<std::string, Option>;
+    valid_options_t valid_options;
   };
 
   args_range_t _range;
   std::string _name;
   std::vector<Group> _groups;
   Group _group;
+
+  std::optional<std::pair<Group::valid_options_t::iterator, std::optional<std::string>>> find_option(
+    const std::string& arg, Group& group)
+  {
+    auto opt = group.valid_options.find(arg);
+    if(opt != group.valid_options.end())
+      return std::make_pair(opt, std::optional<std::string>{});
+    auto pos = arg.find_first_of('=');
+    if(pos == std::string::npos)
+      return {};
+    auto left = arg.substr(0, pos);
+    auto right = arg.substr(pos + 1);
+    opt = group.valid_options.find(left);
+    if(opt != group.valid_options.end())
+      return std::make_pair(opt, std::optional<std::string>{right});
+    return {};
+  }
 
   //
   // Parse the range of arguments against the option group.  Throws an
@@ -189,18 +207,29 @@ private:
         options.push_back(current_option);
         current_option = nullptr;
       }
-      else if(auto opt = group.valid_options.find(*arg); opt != group.valid_options.end())
+      else if(auto opt = find_option(*arg, group); opt)
       {
         // Previous option taking an argument didn't get the argument
         if(current_option)
           throw argument_error("missing option value: " + current_option->name());
         // If the option takes an argument, set current_option
-        if(opt->second.argument())
-          current_option = &opt->second;
+        if(opt->first->second.argument())
+        {
+          if(opt->second)
+          {
+            opt->first->second.set = true;
+            opt->first->second.value = *opt->second;
+            options.push_back(&opt->first->second);
+          }
+          else
+            current_option = &opt->first->second;
+        }
+        else if(opt->second)
+          throw argument_error("illegal option value: " + *arg + "=" + *opt->second);
         else
         {
-          options.push_back(&opt->second);
-          opt->second.set = true;
+          options.push_back(&opt->first->second);
+          opt->first->second.set = true;
         }
       }
       else if(*arg == "--")
