@@ -19,40 +19,6 @@ namespace wani::option
 {
 class Program
 {
-  class Group
-  {
-  public:
-    Group() = default;
-    ~Group() = default;
-    Group(const Group& g) = delete;
-    Group(Group&& g) : min_args(g.min_args), max_args(g.max_args), valid_options(std::move(g.valid_options))
-    {
-      g.min_args = 0;
-      g.max_args = 0;
-    }
-    Group& operator=(Group&& g)
-    {
-      if(this != &g)
-      {
-        min_args = g.min_args;
-        max_args = g.max_args;
-        valid_options = std::move(g.valid_options);
-        g.min_args = 0;
-        g.max_args = 0;
-      }
-      return *this;
-    }
-
-    int min_args = 0;
-    int max_args = 0;
-    std::map<std::string, Option> valid_options;
-  };
-
-  args_range_t _range;
-  std::string _name;
-  std::vector<Group> _groups;
-  Group _group;
-
 public:
   //
   // Create a program with the arguments in 'range'.  The name of the program
@@ -74,8 +40,11 @@ public:
   }
 
   //
-  // Add an optional option to the program.  The function 'f' is the same as
-  // 'f' in 'required'.
+  // Add an optional option to the program.  The function 'f' can either be a
+  // function taking no arguments or a function taking a 'const Option&'.  In
+  // the former case it represents a boolean option and in the latter case it's
+  // an option taking one value.
+  //
   template<typename F>
   Program& optional(const std::string& name, F f)
   {
@@ -93,30 +62,10 @@ public:
   }
 
   //
-  // Alternative syntax starting a new group.  It means that the group
-  // preceding the new group takes no more arguments.
+  // Start a new group of options and set both the min and max number of
+  // arguments accepted.
   //
-  Program& args()
-  {
-    return group();
-  }
-
-  //
-  // Starts a new group setting the minimum number of argruments of the
-  // previous group to 'min_args'.
-  //
-  Program& args(int min_args)
-  {
-    _group.min_args = min_args;
-    _group.max_args = std::numeric_limits<int>::max();
-    return group();
-  }
-
-  //
-  // Starts a new group and sets both the min and max number of arguments
-  // accepted.
-  //
-  Program& args(int min_args, int max_args)
+  Program& args(int min_args = 0, int max_args = 0)
   {
     _group.min_args = min_args;
     _group.max_args = max_args;
@@ -165,10 +114,10 @@ public:
         help += " " + o.help();
       for(auto i = 1; i <= g.min_args; ++i)
         help += " <arg>";
-      if(g.min_args < g.max_args)
+      if(g.min_args < g.max_args || (g.max_args == 0) && g.min_args > 0)
       {
         help += " [<arg>";
-        if(g.max_args == std::numeric_limits<int>::max())
+        if(g.max_args == 0)
           help += "...]";
         else
           help += "]";
@@ -180,6 +129,46 @@ public:
   }
 
 private:
+  //
+  // A Group represents a group of options which can optionally take a number
+  // of arguments after the sequence of options.
+  //
+  class Group
+  {
+  public:
+    Group() = default;
+    ~Group() = default;
+    Group(const Group& g) = delete;
+    Group(Group&& g) : min_args(g.min_args), max_args(g.max_args), valid_options(std::move(g.valid_options))
+    {
+      // Default move constructor doesn't reset these members.
+      g.min_args = 0;
+      g.max_args = 0;
+    }
+    Group& operator=(Group&& g)
+    {
+      // For good measure, define the move assignment operator.
+      if(this != &g)
+      {
+        min_args = g.min_args;
+        max_args = g.max_args;
+        valid_options = std::move(g.valid_options);
+        g.min_args = 0;
+        g.max_args = 0;
+      }
+      return *this;
+    }
+
+    int min_args = 0;
+    int max_args = 0;
+    std::map<std::string, Option> valid_options;
+  };
+
+  args_range_t _range;
+  std::string _name;
+  std::vector<Group> _groups;
+  Group _group;
+
   //
   // Parse the range of arguments against the option group.  Throws an
   // 'argument_error' if there is anything wrong such as illegal option,
