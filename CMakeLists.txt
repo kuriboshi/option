@@ -26,3 +26,13 @@ target_sources(_option
   src/option/string_functions.cc
   src/option/usage.cc)
 target_link_libraries(_option PRIVATE util)
+
+add_executable(option_test)
+target_sources(option_test
+  PRIVATE
+  src/option/Program.test.cc)
+target_link_libraries(option_test
+  PRIVATE
+  util
+  fmt::fmt
+  Catch2::Catch2)

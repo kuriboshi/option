@@ -24,7 +24,7 @@ public:
   // Create a program with the arguments in 'range'.  The name of the program
   // is in 'name'.
   //
-  Program(const args_range_t& range, const std::string& name): _range(range), _name(name) {}
+  Program(const args_range_t& range, std::optional<std::string> name = {}): _range(range), _name(name) {}
 
   //
   // Add a required option to the program.  The function 'f' can either be a
@@ -82,7 +82,6 @@ public:
   args_range_t parse()
   {
     _groups.push_back(std::move(_group));
-    std::vector<std::string> errors;
     for(auto& group: _groups)
     {
       try
@@ -91,27 +90,37 @@ public:
       }
       catch(const argument_error& e)
       {
-        errors.push_back(e.what());
+        _errors.push_back(e.what());
       }
     }
-    usage(*errors.begin());
+    usage();
     throw;
   }
 
   //
-  // Construct the usage string based on what groups and what options there are
-  // in each group.
+  // Construct the help string.  The return value is a vector of strings one
+  // help string for each group.
   //
-  void usage(const std::optional<std::string> error = {})
+  std::vector<std::string> help()
   {
     std::vector<std::string> help_strings;
-    if(error)
-      help_strings.push_back(*error);
     for(auto& g: _groups)
     {
-      std::string help{_name};
+      std::string help;
+      bool first = true;
+      if(_name)
+      {
+        first = false;
+        help = *_name;
+      }
       for(auto& [key, o]: g.valid_options)
-        help += " " + o.help();
+      {
+        if(first)
+          first = false;
+        else
+          help += " ";
+        help += o.help();
+      }
       for(auto i = 1; i <= g.min_args; ++i)
         help += " <arg>";
       if(g.min_args < g.max_args || (g.max_args == 0) && g.min_args > 0)
@@ -124,8 +133,18 @@ public:
       }
       help_strings.push_back(help);
     }
-    std::ostringstream os;
-    option::usage(help_strings);
+    return help_strings;
+  }
+
+  //
+  // Construct the usage string based on what groups and what options there are
+  // in each group.
+  //
+  void usage()
+  {
+    if(_errors.empty())
+      option::usage(help());
+    option::usage(Error(_errors), help());
   }
 
 private:
@@ -166,9 +185,10 @@ private:
   };
 
   args_range_t _range;
-  std::string _name;
+  std::optional<std::string> _name;
   std::vector<Group> _groups;
   Group _group;
+  std::vector<std::string> _errors;
 
   std::optional<std::pair<Group::valid_options_t::iterator, std::optional<std::string>>> find_option(
     const std::string& arg, Group& group)

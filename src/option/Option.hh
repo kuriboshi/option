@@ -20,7 +20,7 @@ namespace wani::option
 class argument_error: public std::exception
 {
 public:
-  argument_error(const std::string& message): _message("bad argument " + message) {}
+  argument_error(const std::string& message): _message(message) {}
 
   virtual const char* what() const noexcept { return _message.c_str(); }
 
