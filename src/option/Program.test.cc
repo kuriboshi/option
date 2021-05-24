@@ -87,3 +87,14 @@ TEST_CASE("Bad boolean option")
   program.optional("--test", [&]() { test = true; });
   REQUIRE_THROWS(program.parse());
 }
+
+TEST_CASE("Test --option=value syntax")
+{
+  std::string value;
+  std::vector<std::string> args = {"--option=value"};
+  Program program({args.begin(), args.end()}, "test");
+  REQUIRE(value.empty());
+  program.required("--option", [&](const Option& o) { value = o.value; });
+  auto result = program.parse();
+  REQUIRE(value == "value");
+}
