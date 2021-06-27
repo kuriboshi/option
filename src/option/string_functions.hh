@@ -11,6 +11,11 @@
 
 namespace wani::option
 {
+//
+// Split a string at the delimeter character and return as a vector<string>.
+// If the final argument include_empties is true then multiple consecutive
+// delimiters results in empty strings in the result vector.
+//
 inline std::vector<std::string> split_string(const std::string& s, char delim, bool include_empties = false)
 {
   std::vector<std::string> result;
@@ -33,6 +38,13 @@ inline std::vector<std::string> split_string(const std::string& s, char delim, b
   return result;
 }
 
+//
+// Parse a string which contains a description of a set of numbers.  The
+// description is a sequence of either numbers or ranges of numbers separated
+// by commas.  The ranges are two numbers separated by a hyphen.  The min and
+// max arguments makes it possible to parse open ranges that starts or ends
+// with a hyphen.
+//
 inline std::set<int> numeric_range(const std::string& s, int min, int max)
 {
   std::set<int> result;
