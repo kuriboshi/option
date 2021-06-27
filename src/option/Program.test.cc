@@ -96,5 +96,19 @@ TEST_CASE("Test --option=value syntax")
   REQUIRE(value.empty());
   program.required("--option", [&](const Option& o) { value = o.value; });
   auto result = program.parse();
-  REQUIRE(value == "value");
+  CHECK(value == "value");
+}
+
+TEST_CASE("Test list of arguments")
+{
+  std::string value;
+  std::vector<std::string> args = {"1", "2"};
+  Program program({args.begin(), args.end()}, "test");
+  auto result = program
+    .args(1)
+    .required("--help", [&]() { program.usage(); })
+    .parse();
+  REQUIRE(std::distance(result.first, result.second) == 2);
+  CHECK(*result.first++ == "1"s);
+  CHECK(*result.first == "2"s);
 }

@@ -123,7 +123,7 @@ public:
       }
       for(auto i = 1; i <= g.min_args; ++i)
         help += " <arg>";
-      if(g.min_args < g.max_args || (g.max_args == 0) && g.min_args > 0)
+      if(g.min_args < g.max_args || (g.max_args == 0 && g.min_args > 0))
       {
         help += " [<arg>";
         if(g.max_args == 0)
@@ -268,14 +268,14 @@ private:
 
   //
   // Verifies that the number of arguments in 'args' satisfies the group
-  // criteria for min and max number of arguements.  If within range each
+  // criteria for min and max number of arguments.  If within range each
   // option is processed.  Finally, the range if remaining arguments is
-  // returned to the called.
+  // returned to the caller.
   //
   args_range_t exec(args_t::iterator args, Group& group, std::vector<Option*>& options)
   {
     auto distance = std::distance(args, _range.second);
-    if(distance < group.min_args || distance > group.max_args)
+    if(distance < group.min_args || (group.max_args > 0 && distance > group.min_args))
       usage();
     for(const auto* o: options)
       o->exec();
