@@ -29,9 +29,11 @@ target_include_directories(option INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+#
 # This library is here to compile the empty .cc files.  They only
 # exist to test that the .hh files include all needed headers and they
 # don't contain any symbols.
+#
 add_library(_option OBJECT)
 target_sources(_option
   PRIVATE
@@ -96,6 +98,5 @@ target_link_libraries(option_test
   option
   fmt::fmt
   Catch2::Catch2)
-
 add_test(NAME option
   COMMAND option_test)

@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <set>
 
-namespace wani::option
+namespace kuri::option
 {
 //
 // Split a string at the delimeter character and return as a vector<string>.
@@ -66,4 +66,4 @@ inline std::set<int> numeric_range(const std::string& s, int min, int max)
   return result;
 }
 
-} // namespace wani::option
+} // namespace kuri::option

@@ -15,23 +15,38 @@
 #include "parse_args.hh"
 #include "usage.hh"
 
-namespace wani::option
+namespace kuri::option
 {
+///
+/// @brief Handles parsing of options for an argument list.  Options can be
+/// required or optional.  There can be groups of options.  The arguments after
+/// processing options may have a required number or not.
+///
 class Program
 {
 public:
-  //
-  // Create a program with the arguments in 'range'.  The name of the program
-  // is in 'name'.
-  //
+  ///
+  /// @brief Create a program argument parser.
+  ///
+  /// @param range The arguments are passed in the range parameter.  The range
+  /// consists of two iterators.
+  ///
+  /// @param name The name of the program and is used in the usage string.
+  /// This parameter is optional and if not specified a program name will not
+  /// be included in the usage string.
+  ///
   Program(const args_range_t& range, std::optional<std::string> name = {}): _range(range), _name(name) {}
 
-  //
-  // Add a required option to the program.  The function 'f' can either be a
-  // function taking no arguments or a function taking a 'const Option&'.  In
-  // the former case it represents a boolean option and in the latter case it's
-  // an option taking one value.
-  //
+  ///
+  /// @brief Create a program argument parser.
+  ///
+  /// @param range The arguments are passed in the range parameter.  The range
+  /// consists of two iterators.
+  ///
+  /// @param name The name of the program and is used in the usage string.
+  /// This parameter is optional and if not specified a program name will not
+  /// be included in the usage string.
+  ///
   template<typename F>
   Program& required(const std::string& name, F f)
   {
@@ -39,12 +54,18 @@ public:
     return *this;
   }
 
-  //
-  // Add an optional option to the program.  The function 'f' can either be a
-  // function taking no arguments or a function taking a 'const Option&'.  In
-  // the former case it represents a boolean option and in the latter case it's
-  // an option taking one value.
-  //
+  ///
+  /// @brief Add an optional option to the program.
+  ///
+  /// @param name The name of the option which should include the double
+  /// hyphens that are part of the option string.
+  ///
+  /// @param f A callback function which is called when the the option is
+  /// found.  The function can either be a function taking no arguments or a
+  /// function taking a 'const Option&' argument.  In the former case it
+  /// represents a boolean option and in the latter case it's an option taking
+  /// one value.
+  ///
   template<typename F>
   Program& optional(const std::string& name, F f)
   {
@@ -52,19 +73,26 @@ public:
     return *this;
   }
 
-  //
-  // Start a new group of options.
-  //
+  ///
+  /// @brief Start a new group of options.
+  ///
   Program& group()
   {
     _groups.push_back(std::move(_group));
     return *this;
   }
 
-  //
-  // Start a new group of options and set both the min and max number of
-  // arguments accepted.
-  //
+  ///
+  /// @brief Set both the min and max number of arguments accepted after
+  /// processing all options.  This member function also starts a new group of
+  /// options.
+  ///
+  /// @param min_args Minimum number of arguments.  The default is zero.
+  ///
+  /// @param max_args Maximum number of arguments.  A value of zero (the
+  /// default) means there is no maximum and any number of arguments is
+  /// accepted.
+  ///
   Program& args(int min_args = 0, int max_args = 0)
   {
     _group.min_args = min_args;
@@ -72,13 +100,15 @@ public:
     return group();
   }
 
-  //
-  // Parse the arguments.  It tries each group in sequence and if successul
-  // returns the range of arguments left after processing all options.  Any
-  // group which can't be parsed, because there is an illegal option for
-  // example, is skipped.  At the end, if no group is selected the first error
-  // encountered is reported and an usage exception is thrown.
-  //
+  ///
+  /// @brief Parse the arguments.  It tries each group in sequence and if
+  /// successful returns the range of arguments left after processing all
+  /// options.  Any group which can't be parsed, because there is an illegal
+  /// option for example, is skipped.  At the end, if no group is selected the
+  /// first error encountered is reported and an usage exception is thrown.
+  ///
+  /// @return Returns the range of arguments which are not options.
+  ///
   args_range_t parse()
   {
     _groups.push_back(std::move(_group));
@@ -97,10 +127,13 @@ public:
     throw;
   }
 
-  //
-  // Construct the help string.  The return value is a vector of strings one
-  // help string for each group.
-  //
+  ///
+  /// @brief Construct the help string.
+  ///
+  /// @return The return value is a vector of strings, one help string for each
+  /// group.  No consideration is given to the width of the generated help
+  /// strings.
+  ///
   std::vector<std::string> help()
   {
     std::vector<std::string> help_strings;
@@ -136,10 +169,10 @@ public:
     return help_strings;
   }
 
-  //
-  // Construct the usage string based on what groups and what options there are
-  // in each group.
-  //
+  ///
+  /// @brief Construct the usage string based on what groups there are and what
+  /// options there are in each group.
+  ///
   void usage()
   {
     if(_errors.empty())
@@ -148,22 +181,41 @@ public:
   }
 
 private:
-  //
-  // A Group represents a group of options which can optionally take a number
-  // of arguments after the sequence of options.
-  //
+  ///
+  /// @brief A Group represents a group of options which can optionally take a
+  /// number of arguments after the sequence of options.
+  ///
   class Group
   {
   public:
+    ///
+    /// @brief Creates an empty group.
+    ///
     Group() = default;
+    ///
+    /// @brief Destroys the object.
+    ///
     ~Group() = default;
-    Group(const Group& g) = delete;
+    ///
+    /// @brief No copying allowed.
+    ///
+    Group(const Group&) = delete;
+    ///
+    /// @brief Move constructor which is used when building the list of groups.
+    ///
+    /// @param g The group to move.
+    ///
     Group(Group&& g) : min_args(g.min_args), max_args(g.max_args), valid_options(std::move(g.valid_options))
     {
       // Default move constructor doesn't reset these members.
       g.min_args = 0;
       g.max_args = 0;
     }
+    ///
+    /// @brief Move assignment operator.
+    ///
+    /// @param g The group to move assign.
+    ///
     Group& operator=(Group&& g)
     {
       // For good measure, define the move assignment operator.
@@ -178,18 +230,39 @@ private:
       return *this;
     }
 
+    /// @brief Minimum number of arguments required after all options have been
+    /// processed.
     int min_args = 0;
+    /// @brief Maximum number of arguments, or zero which means no limit.
     int max_args = 0;
     using valid_options_t = std::map<std::string, Option>;
+    /// @brief Map of option strings (with the double hyphen prefix) to Option
+    /// objects.
     valid_options_t valid_options;
   };
 
+  /// @brief The range of arguments to be parsed.
   args_range_t _range;
+  /// @brief The optional name of the program.  Used in the usage string.
   std::optional<std::string> _name;
+  /// @brief List of groups to consider when parsing.
   std::vector<Group> _groups;
+  /// @brief The current group.
   Group _group;
+  /// @brief List of errors while processing groups.  There may be up to the
+  /// number of groups number of errors in this list.
   std::vector<std::string> _errors;
 
+  ///
+  /// @brief Find an option in a group.
+  ///
+  /// @param arg The option argument to search for.
+  ///
+  /// @param group The option group to search.
+  ///
+  /// @return An optional pair of an iterator to the Option found as well as an
+  /// optional option value.
+  ///
   std::optional<std::pair<Group::valid_options_t::iterator, std::optional<std::string>>> find_option(
     const std::string& arg, Group& group)
   {
@@ -208,11 +281,18 @@ private:
     return {};
   }
 
-  //
-  // Parse the range of arguments against the option group.  Throws an
-  // 'argument_error' if there is anything wrong such as illegal option,
-  // missing option parameter.
-  //
+  ///
+  /// @brief Parse the range of arguments against the option group.
+  ///
+  /// @param range Range of arguments to parse.
+  ///
+  /// @param group Group of options to consider.
+  ///
+  /// @throws Throws an 'argument_error' exception if there is anything wrong
+  /// such as illegal option, missing option parameter.
+  ///
+  /// @return The remaning unprocessed arguments.
+  ///
   args_range_t parse(const args_range_t& range, Group& group)
   {
     std::vector<Option*> options;
@@ -266,12 +346,22 @@ private:
     return exec(arg, group, options);
   }
 
-  //
-  // Verifies that the number of arguments in 'args' satisfies the group
-  // criteria for min and max number of arguments.  If within range each
-  // option is processed.  Finally, the range if remaining arguments is
-  // returned to the caller.
-  //
+  ///
+  /// @brief Verifies that the number of arguments in 'args' satisfies the
+  /// group criteria for min and max number of arguments.  If within range each
+  /// option is processed, meaning the callback function associated with each
+  /// option is called.  Finally, the range of remaining arguments is returned
+  /// to the caller.
+  ///
+  /// @param args The current iterator into the _range list of arguments.
+  ///
+  /// @param group The group being processed.
+  ///
+  /// @param options The list of options given on the command line with any
+  /// option values.
+  ///
+  /// @return The remaining list of arguments.
+  ///
   args_range_t exec(args_t::iterator args, Group& group, std::vector<Option*>& options)
   {
     auto distance = std::distance(args, _range.second);
@@ -283,4 +373,4 @@ private:
   }
 };
 
-} // namespace wani::option
+} // namespace kuri::option

@@ -15,7 +15,7 @@
 
 using namespace std::literals;
 
-namespace wani::option
+namespace kuri::option
 {
 class argument_error: public std::exception
 {
@@ -80,4 +80,4 @@ private:
   std::variant<std::function<void()>, std::function<void(const Option&)>> _fun;
 };
 
-} // namespace wani::option
+} // namespace kuri::option

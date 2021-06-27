@@ -3,10 +3,10 @@
 
 #include "Program.hh"
 
-using namespace wani::option;
+using namespace kuri::option;
 using namespace std::literals;
 
-std::string wani::option::program_name() { return "test"; }
+std::string kuri::option::program_name() { return "test"; }
 
 TEST_CASE("One optional boolean option")
 {

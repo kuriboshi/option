@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 
-namespace wani::option
+namespace kuri::option
 {
 class Error
 {
@@ -48,7 +48,7 @@ private:
 };
 
 // This function must be declared by the user of this library in the namespace
-// wani::option.  It should return the name of the program which is to appear
+// kuri::option.  It should return the name of the program which is to appear
 // in any usage message.
 std::string program_name();
 
@@ -125,4 +125,4 @@ void usage(const Error& error, const Args&... args)
   detail::usage0(true, os, error, args...);
 }
 
-} // namespace wani::option
+} // namespace kuri::option

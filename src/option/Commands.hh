@@ -11,8 +11,11 @@
 #include "parse_args.hh"
 #include "usage.hh"
 
-namespace wani::option
+namespace kuri::option
 {
+///
+/// @brief The Commands class wraps multiple commands initiated by a single
+/// word.
 template<typename T>
 class Commands
 {
@@ -26,14 +29,14 @@ public:
     return *this;
   }
 
-  void parse(T& wanikani, const args_range_t& args)
+  void parse(T& context, const args_range_t& args)
   {
     if(args.first == args.second)
       usage();
     auto c = _commands.find(*args.first);
     if(c == _commands.end())
       usage();
-    c->second(wanikani, {args.first + 1, args.second});
+    c->second(context, {args.first + 1, args.second});
   }
 
 private:
@@ -46,4 +49,4 @@ private:
   std::map<std::string, function_t> _commands;
 };
 
-} // namespace wani::option
+} // namespace kuri::option
