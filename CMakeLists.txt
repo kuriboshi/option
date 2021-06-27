@@ -36,3 +36,6 @@ target_link_libraries(option_test
   util
   fmt::fmt
   Catch2::Catch2)
+
+add_test(NAME option
+  COMMAND option_test)
