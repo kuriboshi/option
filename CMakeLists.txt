@@ -1,12 +1,19 @@
 #
 # Copyright (c) 2021 Krister Joas
 #
+
 cmake_minimum_required(VERSION 3.18.0)
 project(option VERSION 1.1.0)
 set(CMAKE_CXX_STANDARD 17)
-include(CTest)
 
 add_subdirectory(external)
+
+#
+# External dependencies downloaded during the CMake configuration
+# phase are installed here.
+#
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/install")
+
 find_package(Catch2 REQUIRED)
 find_package(fmt REQUIRED)
 
@@ -46,12 +53,6 @@ target_sources(_option
 target_link_libraries(_option PRIVATE option fmt::fmt)
 
 #
-# External dependencies downloaded during the CMake configuration
-# phase are installed here.
-#
-list(APPEND CMAKE_PREFIX_PATH "${PROJECT_BINARY_DIR}/install")
-
-#
 # Installation section.
 #
 include(GNUInstallDirs)
@@ -89,6 +90,7 @@ install(
 #
 # Unit test section.
 #
+include(CTest)
 add_executable(option_test)
 target_sources(option_test
   PRIVATE
