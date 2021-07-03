@@ -5,6 +5,7 @@ header only library is to handle the easiest and most common cases of
 command line arguments.
 
 * Boolean and options with a string value
+* Options taking values accepts `--option value` or `--option=value`
 * Only one string per option
 * Processing of options through callbacks
 * Grouping of options
