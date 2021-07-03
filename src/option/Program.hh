@@ -8,8 +8,8 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
-#include <tuple>
 
 #include "Option.hh"
 #include "parse_args.hh"
@@ -302,7 +302,7 @@ private:
     {
       if(current_option)
       {
-        // Set the option value and execute it
+        // Set the option value
         current_option->value = *arg;
         current_option->set = true;
         options.push_back(current_option);
@@ -343,6 +343,9 @@ private:
     for(auto& o: group.valid_options)
       if(o.second.required && !o.second.set)
         throw argument_error("missing required argument: " + o.second.name());
+    // Last option taking an argument didn't get the argument
+    if(current_option)
+      throw argument_error("missing option value: " + current_option->name());
     return exec(arg, group, options);
   }
 
