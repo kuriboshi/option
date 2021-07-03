@@ -84,15 +84,6 @@ private:
   std::string _what;
 };
 
-///
-/// @brief This function must be declared by the user of this library in the
-///   namespace `kuri::option`.  It should return the name of the program which
-///   is to appear in any usage message.
-///
-/// @return Returns the program name using the argument parser.
-///
-std::string program_name();
-
 namespace detail
 {
 ///
@@ -108,7 +99,6 @@ inline void usage_prefix(bool prefix, std::ostringstream& os)
     os << "usage: ";
   else
     os << "       ";
-  os << program_name() << ' ';
 }
 
 ///

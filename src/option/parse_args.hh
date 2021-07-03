@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include <tuple>
-#include <memory>
+#include <utility>
+#include <string>
 #include <vector>
-#include <map>
 
 namespace kuri::option
 {

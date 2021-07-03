@@ -6,14 +6,6 @@
 
 using namespace kuri;
 
-// We have to define the function `program_name` returning the name of the
-// program.  If it's not defined the program will not link.
-//
-namespace kuri::option
-{
-  std::string program_name() { return "main"; }
-}
-
 int main(int argc, char** argv)
 {
   try
@@ -31,7 +23,7 @@ int main(int argc, char** argv)
     // `parse` member function to do the parsing.  The return value is a pair
     // of iterators in the original vector of arguments.
     //
-    auto result = option::Program({args.begin(), args.end()})
+    auto result = option::Program({args.begin(), args.end()}, "main")
       .optional("--verbose", [&]() { verbose = true; })
       .optional("--print", [&](const option::Option& o) {
         print = o.value;

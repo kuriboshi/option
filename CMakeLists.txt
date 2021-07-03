@@ -96,6 +96,7 @@ include(CTest)
 add_executable(option_test)
 target_sources(option_test
   PRIVATE
+  src/option/Commands.test.cc
   src/option/Program.test.cc)
 target_link_libraries(option_test
   PRIVATE

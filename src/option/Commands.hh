@@ -22,6 +22,21 @@ class Commands
 {
 public:
   ///
+  /// @brief Default constructor.  With this constructor no program name will
+  ///   be printed in the usage string.
+  ///
+  Commands() {}
+  ///
+  /// @brief Commands constructor.
+  ///
+  /// @param program_name The name of the program.  This will be included in
+  ///   the usage string.
+  ///
+  Commands(const std::string& program_name)
+    : _program_name(program_name)
+  {
+  }
+  ///
   /// @brief Type of the command callback function.  It is passed the context
   ///   and the range of arguments still to be processed.
   ///
@@ -36,7 +51,7 @@ public:
   ///
   Commands& command(const std::string& name, function_t callback)
   {
-    _command_list.push_back(name);
+    _command_list.push_back(_program_name ? cat(*_program_name, name) : name);
     _commands.emplace(name, callback);
     return *this;
   }
@@ -71,6 +86,38 @@ private:
   std::vector<std::string> _command_list;
   /// @brief Map of commands to callback functions.
   std::map<std::string, function_t> _commands;
+  /// @brief Name of the program.
+  std::optional<std::string> _program_name;
+
+  ///
+  /// @brief Catenate an arbitrary number of strings.
+  ///
+  /// @tparam T Type of the last item.
+  /// @param last The last item.
+  ///
+  /// @return The catenated string.
+  ///
+  template<typename T>
+  std::string cat(const T& last)
+  {
+    return last;
+  }
+
+  ///
+  /// @brief Catenate an arbitrary number of strings.
+  ///
+  /// @tparam T Type of the first item.
+  /// @tparam As Type of the rest of the items.
+  /// @param first The first item.
+  /// @param rest The rest of the parameter pack.
+  ///
+  /// @return The catenated string.
+  ///
+  template<typename T, typename... As>
+  std::string cat(const T& first, const As&... rest)
+  {
+    return first + ' ' + cat(rest...);
+  }
 };
 
 } // namespace kuri::option

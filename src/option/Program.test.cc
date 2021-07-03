@@ -1,12 +1,10 @@
-#define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_RUNNER
 #include <catch2/catch.hpp>
 
 #include "Program.hh"
 
 using namespace kuri::option;
 using namespace std::literals;
-
-std::string kuri::option::program_name() { return "test"; }
 
 TEST_CASE("One optional boolean option")
 {
@@ -57,7 +55,7 @@ TEST_CASE("Leave required option out")
 {
   bool test = false;
   std::vector<std::string> args = {};
-  Program program({args.begin(), args.end()});
+  Program program({args.begin(), args.end()}, "test");
   REQUIRE(!test);
   program.required("--test", [&]() { test = true; });
   {
@@ -111,4 +109,9 @@ TEST_CASE("Test list of arguments")
   REQUIRE(std::distance(result.first, result.second) == 2);
   CHECK(*result.first++ == "1"s);
   CHECK(*result.first == "2"s);
+}
+
+int main( int argc, char* argv[] ) {
+  int result = Catch::Session().run( argc, argv );
+  return result;
 }
