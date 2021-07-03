@@ -1,26 +1,3 @@
-# kuri::option -- argument parsing
-
-A simple library handling command line options.  The purpose of this
-header only library is to handle the easiest and most common cases of
-command line arguments.
-
-* Boolean and options with a string value
-* Only one string per option
-* Processing of options through callbacks
-* Grouping of options
-* Sub commands
-* Helper function to parse number ranges (e.g. 1-3,5,7-)
-* Min and max number of arguments after the options
-* Conventional use of double hyphen (`--`) to signal end of options
-* Builds the help and usage string automatically
-
-Let's start with a basic example to illustrate some of the features: A
-program which takes two options, one boolean and one with a string
-value, followed by an arbitrary number of arguments.
-
-The example is also available [examples/basic.cc](examples/basic.cc).
-
-```cpp
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -77,4 +54,3 @@ int main(int argc, char** argv)
     std::cerr << e.what() << '\n';
   }
 }
-```

@@ -36,6 +36,8 @@ target_include_directories(option INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+add_subdirectory(examples)
+
 #
 # This library is here to compile the empty .cc files.  They only
 # exist to test that the .hh files include all needed headers and they
