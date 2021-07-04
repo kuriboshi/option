@@ -145,6 +145,7 @@ inline void usage0(bool prefix, std::ostringstream& os, const Error& error, cons
 ///
 /// @tparam T The type of the last item.
 /// @param prefix True if the "usage:" prefix should be printed.
+/// @param os The usage messages is collected in this `ostringstream`.
 /// @param error The `Error` object with its collection of error messages.
 /// @param last The last item to add to the usage message.
 ///

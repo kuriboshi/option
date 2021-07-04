@@ -50,11 +50,14 @@ public:
   ///
   /// @brief Add a required option to the program.
   ///
-  /// @param range The arguments are passed in the range parameter.  The range
-  ///   consists of two iterators.
-  /// @param name The name of the program and is used in the usage string.
-  ///   This parameter is optional and if not specified a program name will not
-  ///   be included in the usage string.
+  /// @tparam F Callback function type.
+  /// @param name The name of the option which should include the double
+  ///   hyphens that are part of the option string.
+  /// @param f A callback function which is called when the the option is
+  ///   found.  The function can either be a function taking no arguments or a
+  ///   function taking a 'const Option&' argument.  In the former case it
+  ///   represents a boolean option and in the latter case it's an option
+  ///   taking one value.
   ///
   template<typename F>
   Program& required(const std::string& name, F f)
@@ -66,6 +69,7 @@ public:
   ///
   /// @brief Add an optional option to the program.
   ///
+  /// @tparam F Callback function type.
   /// @param name The name of the option which should include the double
   ///   hyphens that are part of the option string.
   /// @param f A callback function which is called when the the option is
@@ -108,12 +112,14 @@ public:
   }
 
   ///
-  /// @brief Parse the arguments.  It tries each group in sequence and if
-  ///   successful returns the range of arguments left after processing all
-  ///   options.  Any group which can't be parsed, because there is an illegal
-  ///   option for example, is skipped.  At the end, if no group is selected
-  ///   the first error encountered is reported and an usage exception is
-  ///   thrown.
+  /// @brief Parse the arguments.
+  ///
+  /// @details
+  /// It tries each group in sequence and if successful returns the range of
+  /// arguments left after processing all options.  Any group which can't be
+  /// parsed, because there is an illegal option for example, is skipped.  At
+  /// the end, if no group is selected the first error encountered is reported
+  /// and a usage exception is thrown.
   ///
   /// @return Returns the range of arguments which are not options.
   ///
