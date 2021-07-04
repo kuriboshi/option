@@ -1,5 +1,7 @@
 # kuri::option -- argument parsing
 
+![Ubuntu](https://github.com/kuriboshi/option/actions/workflows/cmake.yml/badge.svg)
+
 A simple library handling command line options.  The purpose of this
 header only library is to handle the easiest and most common cases of
 command line arguments.
