@@ -29,8 +29,9 @@ namespace kuri::option
 {
 ///
 /// @brief Handles parsing of options for an argument list.  Options can be
-///   required or optional.  There can be groups of options.  The arguments
-///   after processing options may have a required number or not.
+///   required or optional.  There can be groups of options.  The number of
+///   arguments after processing options may optionally be constrained to a
+///   minimum and maximum.
 ///
 class Program
 {
@@ -39,7 +40,7 @@ public:
   /// @brief Creates a program argument parser.
   ///
   /// @param range The arguments are passed in the range parameter.  The range
-  ///   consists of two iterators.
+  ///   consists of two iterators into a vector of strings.
   /// @param name The name of the program and is used in the usage string.
   ///   This parameter is optional and if not specified a program name will not
   ///   be included in the usage string.
@@ -47,7 +48,7 @@ public:
   Program(const args_range_t& range, std::optional<std::string> name = {}): _range(range), _name(name) {}
 
   ///
-  /// @brief Create a program argument parser.
+  /// @brief Add a required option to the program.
   ///
   /// @param range The arguments are passed in the range parameter.  The range
   ///   consists of two iterators.
@@ -67,7 +68,6 @@ public:
   ///
   /// @param name The name of the option which should include the double
   ///   hyphens that are part of the option string.
-  ///
   /// @param f A callback function which is called when the the option is
   ///   found.  The function can either be a function taking no arguments or a
   ///   function taking a 'const Option&' argument.  In the former case it
