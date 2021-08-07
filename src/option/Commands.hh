@@ -32,17 +32,12 @@ class Commands
 {
 public:
   ///
-  /// @brief Default constructor.  With this constructor no program name will
-  ///   be printed in the usage string.
-  ///
-  Commands() {}
-  ///
   /// @brief Commands constructor.
   ///
   /// @param program_name The name of the program.  This will be included in
   ///   the usage string.
   ///
-  Commands(const std::string& program_name)
+  Commands(const std::optional<std::string> program_name = {})
     : _program_name(program_name)
   {
   }
@@ -50,7 +45,10 @@ public:
   /// @brief Type of the command callback function.  It is passed the context
   ///   and the range of arguments still to be processed.
   ///
-  using function_t = std::function<void(Context&, args_range_t)>;
+  /// @param context The context.
+  /// @param range The range of command line arguments to parse.
+  ///
+  using function_t = std::function<void(Context& context, args_range_t range)>;
 
   ///
   /// @brief Registers a command string and a callback function.

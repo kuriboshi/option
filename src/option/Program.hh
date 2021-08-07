@@ -52,7 +52,7 @@ public:
   ///
   Program(const args_range_t &range,
           std::optional<std::string> program_name = {})
-      : _range(range), _name(program_name) {}
+      : _range(range), _program_name(program_name) {}
 
   ///
   /// @brief Add a required option to the program.
@@ -162,10 +162,10 @@ public:
     {
       std::string help;
       bool first = true;
-      if(_name)
+      if(_program_name)
       {
         first = false;
-        help = *_name;
+        help = *_program_name;
       }
       for(auto& [key, o]: g.valid_options)
       {
@@ -265,7 +265,7 @@ private:
   /// @brief The range of arguments to be parsed.
   args_range_t _range;
   /// @brief The optional name of the program.  Used in the usage string.
-  std::optional<std::string> _name;
+  std::optional<std::string> _program_name;
   /// @brief List of groups to consider when parsing.
   std::vector<Group> _groups;
   /// @brief The current group.
