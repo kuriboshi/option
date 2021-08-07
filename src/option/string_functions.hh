@@ -14,24 +14,30 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <stdexcept>
+#include <filesystem>
 #include <set>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace kuri::option
 {
 ///
-/// @brief Split a string at the delimeter character and return as a
-///   vector<string>.  If the final argument include_empties is true then
-///   multiple consecutive delimiters results in empty strings in the result
-///   vector.
+/// @brief Split a string at the delimeter character.
 ///
-/// @param s String to be split.
-/// @param delim The delimiter used for splitting the string.
-/// @param include_empties `False` means multiple consecutive delimiters are
-///   folded into one.  `True` will instead put empty strings in the return
-///   collection.  Default is `false`.
+/// @details
+///   Split a string and return as a vector<string>.  If the final argument
+///   include_empties is true then multiple consecutive delimiters results in
+///   empty strings in the result vector.
+///
+/// @param s
+///   String to be split.
+/// @param delim
+///   The delimiter used for splitting the string.
+/// @param include_empties
+///   False means multiple consecutive delimiters are folded into one.  True
+///   will instead put empty strings in the return collection.  Default is
+///   false.
 ///
 /// @return A vector of strings split at the delimiter.  If `include_empties`
 ///   is true then the vector may contain empty strings.
@@ -60,16 +66,19 @@ inline std::vector<std::string> split_string(const std::string& s, char delim, b
 
 ///
 /// @brief Parse a string which contains a description of a set of numbers.
+///
+/// @details
 ///   The description is a sequence of either numbers or ranges of numbers
 ///   separated by commas.  The ranges are two numbers separated by a hyphen.
 ///   The min and max arguments makes it possible to parse open ranges that
 ///   starts or ends with a hyphen.
 ///
-/// @param s A string containing a range of numbers.
-/// @param min The minimum number allowed.  Used to handle the open ended `-n`
-///   case.
-/// @param max The maximum number allowed.  Used to handle the open ended `n-`
-///   case.
+/// @param s
+///   A string containing a range of numbers.
+/// @param min
+///   The minimum number allowed.  Used to handle the open ended `-n` case.
+/// @param max
+///   The maximum number allowed.  Used to handle the open ended `n-` case.
 ///
 /// @return A set of integers defined by the range.
 ///
@@ -92,6 +101,25 @@ inline std::set<int> numeric_range(const std::string& s, int min, int max)
       result.insert(first);
   }
   return result;
+}
+
+///
+/// @brief Utility function which returns the filename of the path.
+///
+/// @details
+///   Extract the final component of a path passed in as parameter.  This is
+///   meant to optionally be used when passed as the name of the program in the
+///   Program class.  Then usage message will print only the name and not
+///   include the path.
+///
+/// @param path
+///   A string containing a path.
+/// @return The basename, i.e. the filename of the path.
+///
+inline std::string basename(const std::string& path)
+{
+  std::filesystem::path p(path);
+  return p.filename().string();
 }
 
 } // namespace kuri::option

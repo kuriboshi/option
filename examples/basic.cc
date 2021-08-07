@@ -37,7 +37,7 @@ int main(int argc, char** argv)
     // `parse` member function to do the parsing.  The return value is a pair
     // of iterators in the original vector of arguments.
     //
-    auto result = option::Program({args.begin(), args.end()}, "main")
+    auto result = option::Program({args.begin(), args.end()}, option::basename(argv[0]))
       .optional("--verbose", [&]() { verbose = true; })
       .optional("--print", [&](const option::Option& o) {
         print = o.value;
