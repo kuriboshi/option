@@ -24,14 +24,14 @@ TEST_CASE("One optional boolean option")
 {
   bool test = false;
   std::vector<std::string> args = {"--test"};
-  Program program({args.begin(), args.end()}, "test");
+  Program program("test");
   REQUIRE(!test);
   program.optional("--test", [&]() { test = true; });
-  auto result = program.parse();
+  auto result = program.parse(args.begin(), args.end());
   SECTION("Verify options")
   {
     REQUIRE(test);
-    REQUIRE(result.first == result.second);
+    REQUIRE(result == args.end());
   }
   SECTION("Verify help string")
   {
@@ -47,14 +47,14 @@ TEST_CASE("One required boolean option")
   SECTION("Provide the require option")
   {
     std::vector<std::string> args = {"--test"};
-    Program program({args.begin(), args.end()}, "test");
+    Program program("test");
     REQUIRE(!test);
     program.required("--test", [&]() { test = true; });
-    auto result = program.parse();
+    auto result = program.parse(args.begin(), args.end());
     SECTION("Verify options")
     {
       REQUIRE(test);
-      REQUIRE(result.first == result.second);
+      REQUIRE(result == args.end());
     }
     SECTION("Verify help string")
     {
@@ -69,12 +69,12 @@ TEST_CASE("Leave required option out")
 {
   bool test = false;
   std::vector<std::string> args = {};
-  Program program({args.begin(), args.end()}, "test");
+  Program program("test");
   REQUIRE(!test);
   program.required("--test", [&]() { test = true; });
   {
     REQUIRE_THROWS_WITH(
-      program.parse(),
+      program.parse(args.begin(), args.end()),
       "missing required argument: --test\nusage: test --test"s);
   }
 }
@@ -83,31 +83,31 @@ TEST_CASE("Single option taking a value")
 {
   std::string value;
   std::vector<std::string> args = {"--value", "value"};
-  Program program({args.begin(), args.end()}, "test");
+  Program program("test");
   REQUIRE(value.empty());
-  auto result = program.optional("--value", [&](const Option& o) { value = o.value; }).parse();
+  auto result = program.optional("--value", [&](const Option& o) { value = o.value; }).parse(args.begin(), args.end());
   REQUIRE(value == "value");
-  REQUIRE(result.first == result.second);
+  REQUIRE(result == args.end());
 }
 
 TEST_CASE("Bad boolean option")
 {
   bool test = false;
   std::vector<std::string> args = {"--bad"};
-  Program program({args.begin(), args.end()}, "test");
+  Program program("test");
   REQUIRE(!test);
   program.optional("--test", [&]() { test = true; });
-  REQUIRE_THROWS(program.parse());
+  REQUIRE_THROWS(program.parse(args.begin(), args.end()));
 }
 
 TEST_CASE("Test --option=value syntax")
 {
   std::string value;
   std::vector<std::string> args = {"--option=value"};
-  Program program({args.begin(), args.end()}, "test");
+  Program program("test");
   REQUIRE(value.empty());
   program.required("--option", [&](const Option& o) { value = o.value; });
-  auto result = program.parse();
+  auto result = program.parse(args.begin(), args.end());
   CHECK(value == "value");
 }
 
@@ -115,14 +115,14 @@ TEST_CASE("Test list of arguments")
 {
   std::string value;
   std::vector<std::string> args = {"1", "2"};
-  Program program({args.begin(), args.end()}, "test");
+  Program program("test");
   auto result = program
     .args(1)
     .required("--help", [&]() { program.usage(); })
-    .parse();
-  REQUIRE(std::distance(result.first, result.second) == 2);
-  CHECK(*result.first++ == "1"s);
-  CHECK(*result.first == "2"s);
+    .parse(args.begin(), args.end());
+  REQUIRE(std::distance(result, args.end()) == 2);
+  CHECK(*result++ == "1"s);
+  CHECK(*result == "2"s);
 }
 
 int main( int argc, char* argv[] ) {

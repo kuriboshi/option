@@ -32,9 +32,9 @@ namespace kuri::option
 /// @brief Handles parsing of options for an argument list.
 ///
 /// @details
-///   Options can be required or optional.  There can be groups of options.
-///   The number of arguments after processing options may optionally be
-///   constrained to a minimum and maximum.
+///   Options can be either required or optional.  There can be groups of
+///   options.  The number of arguments after processing options may optionally
+///   be constrained to a minimum and maximum.
 ///
 class Program
 {
@@ -42,29 +42,27 @@ public:
   ///
   /// @brief Creates a program argument parser.
   ///
-  /// @param range
-  ///   The arguments are passed in the range parameter.  The range consists of
-  ///   two iterators into a vector of strings.
   /// @param name
   ///   The name of the program and is used in the usage string.  This
   ///   parameter is optional and if not specified a program name will not be
   ///   included in the usage string.
   ///
-  Program(const args_range_t &range,
-          std::optional<std::string> program_name = {})
-      : _range(range), _program_name(program_name) {}
+  Program(std::optional<std::string> program_name = {})
+    : _program_name(program_name) {}
 
   ///
   /// @brief Add a required option to the program.
   ///
-  /// @tparam F Callback function type.
-  /// @param name The name of the option which should include the double
-  ///   hyphens that are part of the option string.
-  /// @param f A callback function which is called when the the option is
-  ///   found.  The function can either be a function taking no arguments or a
-  ///   function taking a 'const Option&' argument.  In the former case it
-  ///   represents a boolean option and in the latter case it's an option
-  ///   taking one value.
+  /// @tparam F
+  ///   Callback function type.
+  /// @param name
+  ///   The name of the option which should include the double hyphens that are
+  ///   part of the option string.
+  /// @param f
+  ///   A callback function which is called when the the option is found.  The
+  ///   function can either be a function taking no arguments or a function
+  ///   taking a 'const Option&' argument.  In the former case it represents a
+  ///   boolean option and in the latter case it's an option taking one value.
   ///
   template<typename F>
   Program& required(const std::string& name, F f)
@@ -76,14 +74,16 @@ public:
   ///
   /// @brief Add an optional option to the program.
   ///
-  /// @tparam F Callback function type.
-  /// @param name The name of the option which should include the double
-  ///   hyphens that are part of the option string.
-  /// @param f A callback function which is called when the the option is
-  ///   found.  The function can either be a function taking no arguments or a
-  ///   function taking a 'const Option&' argument.  In the former case it
-  ///   represents a boolean option and in the latter case it's an option
-  ///   taking one value.
+  /// @tparam F
+  ///   Callback function type.
+  /// @param name
+  ///   The name of the option which should include the double hyphens that are
+  ///   part of the option string.
+  /// @param f
+  ///   A callback function which is called when the the option is found.  The
+  ///   function can either be a function taking no arguments or a function
+  ///   taking a 'const Option&' argument.  In the former case it represents a
+  ///   boolean option and in the latter case it's an option taking one value.
   ///
   template<typename F>
   Program& optional(const std::string& name, F f)
@@ -102,14 +102,13 @@ public:
   }
 
   ///
-  /// @brief Set both the min and max number of arguments accepted after
-  ///   processing all options.  This member function also starts a new group of
-  ///   options.
+  /// @brief Creates a group representing the arguments after all options.
   ///
-  /// @param min_args Minimum number of arguments.  The default is zero.
-  /// @param max_args Maximum number of arguments.  A value of zero (the
-  ///   default) means there is no maximum and any number of arguments is
-  ///   accepted.
+  /// @param min_args
+  ///   Minimum number of arguments.  The default is zero.
+  /// @param max_args
+  ///   Maximum number of arguments.  A value of zero (the default) means there
+  ///   is no maximum and any number of arguments is accepted.
   ///
   Program& args(int min_args = 0, int max_args = 0)
   {
@@ -122,22 +121,24 @@ public:
   /// @brief Parse the arguments.
   ///
   /// @details
-  /// It tries each group in sequence and if successful returns the range of
-  /// arguments left after processing all options.  Any group which can't be
-  /// parsed, because there is an illegal option for example, is skipped.  At
-  /// the end, if no group is selected the first error encountered is reported
-  /// and a usage exception is thrown.
+  ///   This function tries each group in sequence and if successful returns
+  ///   the iterator of first argument which is not an option.  Any group which
+  ///   can't be parsed, because there is an illegal option for example, is
+  ///   skipped.  At the end, if no group is selected the first error
+  ///   encountered is reported and a usage exception is thrown.
   ///
-  /// @return Returns the range of arguments which are not options.
+  /// @param first, last
+  ///   The range of elements to parse.
+  /// @return Returns the first iterator which is not an option.
   ///
-  args_range_t parse()
+  args_t::iterator parse(args_t::iterator first, args_t::iterator last)
   {
     _groups.push_back(std::move(_group));
     for(auto& group: _groups)
     {
       try
       {
-        return parse(_range, group);
+        return parse(first, last, group);
       }
       catch(const argument_error& e)
       {
@@ -262,8 +263,6 @@ private:
     valid_options_t valid_options;
   };
 
-  /// @brief The range of arguments to be parsed.
-  args_range_t _range;
   /// @brief The optional name of the program.  Used in the usage string.
   std::optional<std::string> _program_name;
   /// @brief List of groups to consider when parsing.
@@ -304,29 +303,30 @@ private:
   ///
   /// @brief Parse the range of arguments against the option group.
   ///
-  /// @param range Range of arguments to parse.
-  /// @param group Group of options to consider.
+  /// @param first, last
+  ///   The range of elements to parse.
+  /// @param group
+  ///   Group of options to consider.
   /// @throws Throws an 'argument_error' exception if there is anything wrong
   ///   such as illegal option, missing option parameter.
   ///
   /// @return The remaning unprocessed arguments.
   ///
-  args_range_t parse(const args_range_t& range, Group& group)
+  args_t::iterator parse(args_t::iterator first, args_t::iterator last, Group& group)
   {
     std::vector<Option*> options;
     Option* current_option = nullptr;
-    auto arg = range.first;
-    for(;arg != range.second; ++arg)
+    for(;first != last; ++first)
     {
       if(current_option)
       {
         // Set the option value
-        current_option->value = *arg;
+        current_option->value = *first;
         current_option->set = true;
         options.push_back(current_option);
         current_option = nullptr;
       }
-      else if(auto opt = find_option(*arg, group); opt)
+      else if(auto opt = find_option(*first, group); opt)
       {
         // Previous option taking an argument didn't get the argument
         if(current_option)
@@ -344,19 +344,19 @@ private:
             current_option = &opt->first->second;
         }
         else if(opt->second)
-          throw argument_error("illegal option value: " + *arg + "=" + *opt->second);
+          throw argument_error("illegal option value: " + *first + "=" + *opt->second);
         else
         {
           options.push_back(&opt->first->second);
           opt->first->second.set = true;
         }
       }
-      else if(*arg == "--")
-        return exec(++arg, group, options);
-      else if(!arg->empty() && arg->at(0) == '-')
-        throw argument_error("unknown option: " + *arg);
+      else if(*first == "--")
+        return exec(++first, last, group, options);
+      else if(!first->empty() && first->at(0) == '-')
+        throw argument_error("unknown option: " + *first);
       else
-        return exec(arg, group, options);
+        return exec(first, last, group, options);
     }
     for(auto& o: group.valid_options)
       if(o.second.required && !o.second.set)
@@ -364,31 +364,37 @@ private:
     // Last option taking an argument didn't get the argument
     if(current_option)
       throw argument_error("missing option value: " + current_option->name());
-    return exec(arg, group, options);
+    return exec(first, last, group, options);
   }
 
   ///
-  /// @brief Verifies that the number of arguments in 'args' satisfies the
-  ///   group criteria for min and max number of arguments.  If within range
-  ///   each option is processed, meaning the callback function associated with
-  ///   each option is called.  Finally, the range of remaining arguments is
-  ///   returned to the caller.
+  /// @brief Executes the functions associated with the option if all critera
+  /// are met.
   ///
-  /// @param args The current iterator into the _range list of arguments.
-  /// @param group The group being processed.
-  /// @param options The list of options given on the command line with any
-  ///   option values.
+  /// @details
+  ///   Verifies that the number of arguments in the range satisfies the group
+  ///   criteria for min and max number of arguments.  If within range each
+  ///   option is processed, meaning the callback function associated with each
+  ///   option is called.  Finally, the first iterator to the first non-option
+  ///   argument is returned to the caller.
+  ///
+  /// @param first, last
+  ///    The range of arguments.
+  /// @param group
+  ///    The group being processed.
+  /// @param options
+  ///   The list of options given on the command line with any option values.
   ///
   /// @return The remaining list of arguments.
   ///
-  args_range_t exec(args_t::iterator args, Group& group, std::vector<Option*>& options)
+  args_t::iterator exec(args_t::iterator first, args_t::iterator last, Group& group, std::vector<Option*>& options)
   {
-    auto distance = std::distance(args, _range.second);
+    auto distance = std::distance(first, last);
     if(distance < group.min_args || (group.max_args > 0 && distance > group.min_args))
       usage();
     for(const auto* o: options)
       o->exec();
-    return {args, _range.second};
+    return first;
   }
 };
 

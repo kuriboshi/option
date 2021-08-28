@@ -49,20 +49,20 @@ int main(int argc, char** argv)
     // `parse` member function to do the parsing.  The return value is a pair
     // of iterators in the original vector of arguments.
     //
-    auto result = option::Program({args.begin(), args.end()}, option::basename(argv[0]))
+    auto result = option::Program(option::basename(argv[0]))
       .optional("--verbose", [&]() { verbose = true; })
       .optional("--print", [&](const option::Option& o) {
         print = o.value;
       })
       .args()
-      .parse();
+      .parse(args.begin(), args.end());
     //
     // Now print the result of
     //
     std::cout << "verbose = " << std::boolalpha << verbose << '\n';
     if (print)
       std::cout << "print = " << *print << '\n';
-    for(auto i = result.first; i != result.second; ++i)
+    for(auto i = result; i != args.end(); ++i)
       std::cout << "arg = " << *i << '\n';
   }
   catch(const option::usage_error& e)

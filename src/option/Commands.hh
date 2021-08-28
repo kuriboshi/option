@@ -34,28 +34,35 @@ public:
   ///
   /// @brief Commands constructor.
   ///
-  /// @param program_name The name of the program.  This will be included in
-  ///   the usage string.
+  /// @param program_name
+  ///   The name of the program.  This will be included in the usage string.
   ///
   Commands(const std::optional<std::string> program_name = {})
     : _program_name(program_name)
   {
   }
   ///
-  /// @brief Type of the command callback function.  It is passed the context
-  ///   and the range of arguments still to be processed.
+  /// @brief Type of the command callback function.
   ///
-  /// @param context The context.
-  /// @param range The range of command line arguments to parse.
+  /// @details
+  ///   The function is passed the context and two iterators representing the
+  ///   range of arguments still to be processed.
   ///
-  using function_t = std::function<void(Context& context, args_range_t range)>;
+  /// @param context
+  ///   The context.  This can be anything and is passed to the callback
+  ///   function as is.
+  /// @param first, last
+  ///   The range of command line arguments to parse.
+  ///
+  using function_t = std::function<void(Context& context, args_t::iterator first, args_t::iterator last)>;
 
   ///
   /// @brief Registers a command string and a callback function.
   ///
-  /// @param name The name of the command.
-  /// @param callback The callback function which is called when dispatching a
-  ///   command.
+  /// @param name
+  ///   The name of the command.
+  /// @param callback
+  ///   The callback function which is called when dispatching a command.
   ///
   Commands& command(const std::string& name, function_t callback)
   {
@@ -67,18 +74,19 @@ public:
   ///
   /// @brief Parse the arguments.
   ///
-  /// @param context The context is passed as the first argument of the
-  ///   callback function.
-  /// @param args The range of arguments as a pair of iterators.
+  /// @param context
+  ///   The context is passed as the first argument of the callback function.
+  /// @param first, last
+  ///   The range of arguments to parse.
   ///
-  void parse(Context& context, const args_range_t& args)
+  void parse(Context& context, args_t::iterator first, args_t::iterator last)
   {
-    if(args.first == args.second)
+    if(first == last)
       usage();
-    auto c = _commands.find(*args.first);
+    auto c = _commands.find(*first);
     if(c == _commands.end())
       usage();
-    c->second(context, {args.first + 1, args.second});
+    c->second(context, first + 1, last);
   }
 
 private:
@@ -100,8 +108,10 @@ private:
   ///
   /// @brief Catenate an arbitrary number of strings.
   ///
-  /// @tparam T Type of the last item.
-  /// @param last The last item.
+  /// @tparam T
+  ///   Type of the last item.
+  /// @param last
+  ///   The last item.
   ///
   /// @return The catenated string.
   ///
@@ -114,10 +124,12 @@ private:
   ///
   /// @brief Catenate an arbitrary number of strings.
   ///
-  /// @tparam T Type of the first item.
-  /// @tparam As Type of the rest of the items.
-  /// @param first The first item.
-  /// @param rest The rest of the parameter pack.
+  /// @tparam T
+  ///   Type of the first item.
+  /// @tparam As
+  ///   Type of the rest of the items.
+  /// @param first, rest
+  ///   The first item and rest of the parameter pack.
   ///
   /// @return The catenated string.
   ///

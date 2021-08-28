@@ -21,12 +21,12 @@
 
 using namespace kuri;
 
-void first(int&, const option::args_range_t& rest)
+void first(int&, option::args_t::iterator, option::args_t::iterator)
 {
   option::usage("first");
 }
 
-void second(int&, const option::args_range_t& rest)
+void second(int&, option::args_t::iterator, option::args_t::iterator)
 {
   option::usage("second");
 }
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     int i = 0;
     commands.command("first", first)
       .command("second", second)
-      .parse(i, {args.begin(), args.end()});
+      .parse(i, args.begin(), args.end());
   }
   catch(const option::usage_error& e)
   {
