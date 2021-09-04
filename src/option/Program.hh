@@ -104,14 +104,33 @@ public:
   ///
   /// @brief Creates a group representing the arguments after all options.
   ///
+  /// @details
+  ///   The two arguments defines how many arguments are accepted.  We have the
+  ///   following possible scenarios.
+  ///   
+  /// @code
+  ///   min, max | Description                 | Help string
+  ///   ---------|-----------------------------|--------------------
+  ///   {}, {}   | No arguments                | -
+  ///   0, {}    | Any number of arguments     | [<arg>...]
+  ///   1, {}    | At least one argument       | <arg> [<arg>...]
+  ///   1, 1     | Exactly one argument        | <arg>
+  ///   2, 3     | Two or three arguments      | <arg> <arg> [<arg>]
+  ///   0, 2     | Zero, one, or two arguments | [<arg> [<arg>]]
+  /// @endcode
+  ///
   /// @param min_args
-  ///   Minimum number of arguments.  The default is zero.
+  ///   Minimum number of arguments.  The default is none.
   /// @param max_args
-  ///   Maximum number of arguments.  A value of zero (the default) means there
+  ///   Maximum number of arguments.  A value of none (the default) means there
   ///   is no maximum and any number of arguments is accepted.
   ///
-  Program& args(int min_args = 0, int max_args = 0)
+  Program& args(std::optional<int> min_args = {}, std::optional<int> max_args = {})
   {
+    if(!min_args && max_args)
+      throw std::runtime_error("Program::args: max_args without min_args");
+    if(max_args && min_args && (*min_args > *max_args))
+      throw std::runtime_error("Program::args: min_args > max_args");
     _group.min_args = min_args;
     _group.max_args = max_args;
     return group();
@@ -176,15 +195,29 @@ public:
           help += " ";
         help += o.help();
       }
-      for(auto i = 1; i <= g.min_args; ++i)
-        help += " <arg>";
-      if(g.min_args < g.max_args || (g.max_args == 0 && g.min_args > 0))
+      if(g.min_args)
       {
-        help += " [<arg>";
-        if(g.max_args == 0)
-          help += "...]";
+        auto min_args = *g.min_args;
+        for(auto i = 1; i <= min_args; ++i)
+          help += " <arg>";
+        if(g.max_args)
+        {
+          if(*g.max_args > min_args)
+          {
+            help += " [";
+            int first = 0;
+            for(auto i = *g.min_args; i < *g.max_args; ++i)
+            {
+              if(first > 0)
+                help += " [";
+              ++first;
+              help += "<arg>";
+            }
+            help += std::string(first, ']');
+          }
+        }
         else
-          help += "]";
+          help += " [<arg>...]";
       }
       help_strings.push_back(help);
     }
@@ -230,8 +263,8 @@ private:
     Group(Group&& g) : min_args(g.min_args), max_args(g.max_args), valid_options(std::move(g.valid_options))
     {
       // Default move constructor doesn't reset these members.
-      g.min_args = 0;
-      g.max_args = 0;
+      g.min_args = {};
+      g.max_args = {};
     }
     ///
     /// @brief Move assignment operator.
@@ -246,17 +279,17 @@ private:
         min_args = g.min_args;
         max_args = g.max_args;
         valid_options = std::move(g.valid_options);
-        g.min_args = 0;
-        g.max_args = 0;
+        g.min_args = {};
+        g.max_args = {};
       }
       return *this;
     }
 
     /// @brief Minimum number of arguments required after all options have been
     ///   processed.
-    int min_args = 0;
+    std::optional<int> min_args;
     /// @brief Maximum number of arguments, or zero which means no limit.
-    int max_args = 0;
+    std::optional<int> max_args;
     using valid_options_t = std::map<std::string, Option>;
     /// @brief Map of option strings (with the double hyphen prefix) to Option
     ///   objects.
@@ -379,9 +412,9 @@ private:
   ///   argument is returned to the caller.
   ///
   /// @param first, last
-  ///    The range of arguments.
+  ///   The range of arguments.
   /// @param group
-  ///    The group being processed.
+  ///   The group being processed.
   /// @param options
   ///   The list of options given on the command line with any option values.
   ///
@@ -390,7 +423,19 @@ private:
   args_t::iterator exec(args_t::iterator first, args_t::iterator last, Group& group, std::vector<Option*>& options)
   {
     auto distance = std::distance(first, last);
-    if(distance < group.min_args || (group.max_args > 0 && distance > group.min_args))
+    if(group.min_args)
+    {
+      auto min_args = *group.min_args;
+      if(distance < min_args)
+        usage();
+      if(group.max_args)
+      {
+        auto max_args = *group.max_args;
+        if(distance > max_args)
+          usage();
+      }
+    }
+    else if(distance > 0)
       usage();
     for(const auto* o: options)
       o->exec();
