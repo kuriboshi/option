@@ -17,6 +17,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <optional>
 
 #include "parse_args.hh"
 #include "usage.hh"
