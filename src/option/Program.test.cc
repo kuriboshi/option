@@ -1,4 +1,4 @@
-// Copyright 2021 Krister Joas
+// Copyright 2021, 2023 Krister Joas
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,9 @@
 // limitations under the License.
 
 #define CATCH_CONFIG_RUNNER
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_session.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 
 #include "Program.hh"
 
