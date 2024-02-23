@@ -1,4 +1,5 @@
-# Copyright 2020-2023 Krister Joas
+#
+# Copyright 2021, 2023-2024 Krister Joas
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -12,22 +13,27 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-file(DOWNLOAD
-  https://raw.githubusercontent.com/kuriboshi/cmake-external/v1.0.1/cmake-external.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake-external.cmake
-  EXPECTED_HASH SHA256=eb85f6bfd601ad472160a1d9d2880ac57a96ce635132a4162c1a5a13d9ab9152
-)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake-external.cmake)
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake)
+  file(COPY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake-external.cmake
+       ${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake-external.cmake)
+else()
+  file(
+    DOWNLOAD
+    https://raw.githubusercontent.com/kuriboshi/cmake-external/v1.1.0/cmake-external.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake-external.cmake
+    EXPECTED_HASH
+      SHA256=3d616b2d2fc702e7caef237ef86777b6e679140d31e9f2037b4a45b3ce97b81e)
+endif()
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR}/cmake)
 
 include(cmake-external)
 
 cmake_external(catch2
-  URL https://github.com/catchorg/Catch2/archive/v3.3.2.tar.gz
-  SHA256 8361907f4d9bff3ae7c1edb027f813659f793053c99b67837a0c0375f065bae2
-)
+  catch2 URL https://github.com/catchorg/Catch2/archive/v3.5.2.tar.gz SHA256
+  269543a49eb76f40b3f93ff231d4c24c27a7e16c90e47d2e45bcc564de470c6e)
 
 cmake_external(fmt
-  URL https://github.com/fmtlib/fmt/archive/9.1.0.tar.gz
-  SHA256 5dea48d1fcddc3ec571ce2058e13910a0d4a6bab4cc09a809d8b1dd1c88ae6f2
-  DEFINE FMT_DOC=OFF FMT_TEST=OFF
-)
+  URL https://github.com/fmtlib/fmt/archive/10.2.0.tar.gz
+  SHA256 3ca91733a7313a8ad41c0885929415f8ec0a2a31d4dc7e27e9331412f4ca26ac
+  DEFINE FMT_DOC=OFF FMT_TEST=OFF)

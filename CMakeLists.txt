@@ -1,4 +1,4 @@
-# Copyright 2021 Krister Joas
+# Copyright 2021, 2024 Krister Joas
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -12,9 +12,13 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-cmake_minimum_required(VERSION 3.18.0)
-project(option VERSION 1.1.0)
+cmake_minimum_required(VERSION 3.21.0)
+project(option VERSION 2.1.0)
 set(CMAKE_CXX_STANDARD 17)
+
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+endif()
 
 add_subdirectory(external)
 
