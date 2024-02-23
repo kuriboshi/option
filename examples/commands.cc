@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -21,9 +22,19 @@
 
 using namespace kuri;
 
-void first(int&, option::args_t::iterator, option::args_t::iterator)
+void first(int&, option::args_t::iterator a, option::args_t::iterator b)
 {
-  option::usage("first");
+  auto verbose = false;
+  std::optional<std::string> print;
+  auto result = option::Program()
+    .optional("--verbose", [&]() { verbose = true; })
+    .optional("--print", [&](const option::Option& o) {
+      print = o.value;
+    })
+    .args()
+    .parse(a, b);
+  std::cout << "verbose: " << verbose << '\n';
+  std::cout << "print: " << (print ? *print : std::string{"-"}) << '\n';
 }
 
 void second(int&, option::args_t::iterator, option::args_t::iterator)
